@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero de proyecto | ¿En qué se me fue?</title>
+<style>
+:root{
+  --bg:#f4f6fb;--panel:#fff;--ink:#182230;--muted:#667085;--line:#e7eaf0;
+  --purple:#6759d6;--purple-soft:#efedff;--green:#16865b;--green-soft:#e8f7ef;
+  --orange:#c87516;--orange-soft:#fff3df;--blue:#2875c7;--blue-soft:#eaf3ff;
+  --red:#c34e58;--red-soft:#fff0f1;--shadow:0 8px 24px rgba(25,35,55,.07);
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:15px 4vw;display:flex;align-items:center;justify-content:space-between;gap:18px;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#7669e8,#4e42b8);display:grid;place-items:center;color:white;font-weight:900;font-size:19px}
+.brand h1{font-size:16px;margin:0}.brand p{font-size:12px;color:var(--muted);margin:3px 0 0}
+.top-actions{display:flex;gap:9px;align-items:center}.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;color:var(--ink);font-weight:650;font-size:13px}.btn.primary{background:var(--purple);border-color:var(--purple);color:#fff}.btn:hover{filter:brightness(.97)}
+main{max-width:1600px;margin:auto;padding:28px 4vw 50px}.intro{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--purple);text-transform:uppercase}.intro h2{font-size:27px;margin:6px 0}.intro p{color:var(--muted);margin:0;font-size:14px;max-width:760px;line-height:1.5}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:12px;margin:20px 0 23px}.metric{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 17px;box-shadow:0 2px 8px rgba(25,35,55,.025)}.metric span{font-size:12px;color:var(--muted)}.metric strong{display:block;font-size:24px;margin-top:6px}.progress-wrap{height:6px;background:#eceef4;border-radius:9px;margin-top:10px;overflow:hidden}.progress{height:100%;background:var(--purple);width:0;transition:width .2s}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.filters input,.filters select{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 11px;font-size:13px;outline:none}.filters input{min-width:230px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(245px,1fr));gap:13px;align-items:start;overflow-x:auto;padding-bottom:15px}
+.column{background:#edf0f6;border:1px solid #e5e8ef;border-radius:13px;padding:11px;min-height:380px}.column-head{display:flex;justify-content:space-between;align-items:center;padding:4px 3px 12px}.column-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800}.dot{width:9px;height:9px;border-radius:50%;background:#98a2b3}.count{font-size:11px;color:var(--muted);background:#fff;border-radius:20px;padding:3px 8px}
+.task-list{display:flex;flex-direction:column;gap:9px;min-height:300px}.task{background:#fff;border:1px solid #e5e8ef;border-radius:10px;padding:12px;box-shadow:0 2px 5px rgba(20,30,50,.035)}.task:hover{box-shadow:var(--shadow);transform:translateY(-1px)}.task-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.task h3{font-size:13px;line-height:1.4;margin:0 0 7px}.task p{font-size:11.5px;color:var(--muted);line-height:1.45;margin:0 0 10px}.tag{display:inline-block;font-size:10px;font-weight:750;border-radius:5px;padding:4px 7px;margin:0 4px 4px 0;background:var(--purple-soft);color:var(--purple)}.tag.alta{background:var(--red-soft);color:var(--red)}.tag.media{background:var(--orange-soft);color:var(--orange)}.tag.baja{background:var(--green-soft);color:var(--green)}
+.task-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f0f1f5;padding-top:8px;margin-top:7px}.task-foot small{font-size:10px;color:var(--muted)}.task-actions{display:flex;gap:4px}.mini{border:0;background:#f3f4f8;border-radius:6px;padding:5px 7px;font-size:11px;color:#4b5565}.add-task{width:100%;border:1px dashed #c6cad5;background:transparent;border-radius:8px;padding:9px;color:#626b7c;font-size:12px;margin-top:10px}.add-task:hover{background:#fff}
+.empty{font-size:12px;color:#929aaa;text-align:center;padding:30px 8px}
+.info{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:16px}.info h3{font-size:14px;margin:0 0 8px}.info p{font-size:12px;color:var(--muted);line-height:1.55;margin:0}
+.modal-backdrop{position:fixed;inset:0;background:rgba(18,24,38,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}.modal-backdrop.show{display:flex}.modal{background:#fff;width:min(520px,100%);border-radius:15px;padding:22px;box-shadow:0 20px 60px #1113}.modal h2{font-size:18px;margin:0 0 16px}.field{margin-bottom:12px}.field label{display:block;font-size:12px;font-weight:750;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px}.field textarea{min-height:80px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}
+footer{text-align:center;color:#98a0ae;font-size:11px;padding:22px}
+@media(max-width:850px){.intro{align-items:flex-start;flex-direction:column}.metrics{grid-template-columns:repeat(2,1fr)}.topbar{padding:12px 4vw}.top-actions .btn:not(.primary){display:none}.board{grid-template-columns:repeat(5,260px)}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="logo">¿?</div><div><h1>¿En qué se me fue?</h1><p>Gestión del proyecto · Tablero de trabajo</p></div></div>
+  <div class="top-actions"><button class="btn" onclick="exportBoard()">Exportar tablero</button><button class="btn" onclick="resetBoard()">Restaurar ejemplo</button><button class="btn primary" onclick="openModal()">＋ Nueva tarea</button></div>
+</header>
+<main>
+  <section class="intro">
+    <div><div class="eyebrow">Proyecto integrador · Ingeniería de Software</div><h2>Tablero de planificación y seguimiento</h2><p>Organiza el proyecto de principio a fin: definición, requisitos, diseño, desarrollo, pruebas, documentación y entrega. Mueve cada tarjeta según el avance real del equipo.</p></div>
+  </section>
+  <section class="metrics">
+    <div class="metric"><span>Total de tareas</span><strong id="total">0</strong></div>
+    <div class="metric"><span>En proceso</span><strong id="doing">0</strong></div>
+    <div class="metric"><span>Completadas</span><strong id="done">0</strong></div>
+    <div class="metric"><span>Avance general</span><strong id="percent">0%</strong><div class="progress-wrap"><div class="progress" id="progress"></div></div></div>
+  </section>
+  <div class="toolbar">
+    <div class="filters"><input id="search" placeholder="Buscar tarea..." oninput="render()"><select id="priority" onchange="render()"><option value="">Todas las prioridades</option><option>Alta</option><option>Media</option><option>Baja</option></select><select id="area" onchange="render()"><option value="">Todas las áreas</option><option>Gestión</option><option>Requisitos</option><option>Diseño</option><option>Backend</option><option>Móvil</option><option>Datos</option><option>DevOps</option><option>Pruebas</option><option>Documentación</option><option>Entrega</option></select></div>
+  </div>
+  <section class="board" id="board"></section>
+<footer>Tablero local de seguimiento · ¿En qué se me fue? · Nicolás Alejandro Rueda Calderón y Vallerie Ximena Martínez Amaya</footer>
+
+<div class="modal-backdrop" id="modal">
+  <form class="modal" onsubmit="saveTask(event)">
+    <h2 id="modalTitle">Nueva tarea</h2>
+    <input type="hidden" id="taskId">
+    <div class="field"><label for="title">Nombre de la tarea *</label><input id="title" required maxlength="100" placeholder="Ej. Diseñar pantalla de registro"></div>
+    <div class="field"><label for="desc">Descripción / resultado esperado</label><textarea id="desc" placeholder="Describe qué se debe hacer y cómo se valida que quedó listo."></textarea></div>
+    <div class="field"><label for="areaInput">Área</label><select id="areaInput"><option>Gestión</option><option>Requisitos</option><option>Diseño</option><option>Backend</option><option>Móvil</option><option>Datos</option><option>DevOps</option><option>Pruebas</option><option>Documentación</option><option>Entrega</option></select></div>
+    <div class="field"><label for="prioInput">Prioridad</label><select id="prioInput"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
+    <div class="field"><label for="statusInput">Columna</label><select id="statusInput"><option>Por hacer</option><option>En progreso</option><option>En revisión</option><option>Terminado</option><option>Ideas y pendientes</option></select></div>
+    <div class="modal-actions"><button type="button" class="btn" onclick="closeModal()">Cancelar</button><button class="btn primary" type="submit">Guardar tarea</button></div>
+  </form>
+</div>
+<script>
+const columns=["Ideas y pendientes","Por hacer","En progreso","En revisión","Terminado"];
+const seed=[
+["Definir el problema y la necesidad del usuario","Describir qué problema financiero resuelve la aplicación y para quién está dirigida.","Gestión","Alta","Terminado"],
+["Establecer objetivos y alcance","Delimitar funciones incluidas y aquello que queda fuera del alcance del proyecto.","Gestión","Alta","Terminado"],
+["Identificar interesados y roles del equipo","Definir responsables, comunicación y forma de tomar decisiones.","Gestión","Media","Por hacer"],
+["Crear cronograma e hitos del proyecto","Dividir el trabajo en entregas y establecer fechas de seguimiento.","Gestión","Media","Por hacer"],
+["Levantar requisitos funcionales","Documentar registro, login, movimientos, categorías, presupuestos, fugas, estadísticas, metas y exportación.","Requisitos","Alta","En revisión"],
+["Definir requisitos no funcionales","Especificar seguridad, rendimiento, usabilidad, compatibilidad móvil y mantenibilidad.","Requisitos","Alta","Por hacer"],
+["Redactar historias de usuario y criterios de aceptación","Convertir las necesidades en tareas verificables para el equipo.","Requisitos","Alta","Por hacer"],
+["Priorizar el backlog del producto","Ordenar funcionalidades por valor, dependencia y esfuerzo.","Gestión","Media","Por hacer"],
+["Diseñar flujo de navegación de la app","Definir pantallas, pestañas y recorrido entre módulos.","Diseño","Alta","En revisión"],
+["Crear wireframes y prototipo visual","Diseñar bienvenida, autenticación, dashboard, movimientos, fugas, presupuestos, estadísticas, metas y perfil.","Diseño","Alta","Por hacer"],
+["Definir sistema visual y componentes","Establecer paleta, tipografía, botones, tarjetas, formularios y estados de alerta.","Diseño","Media","Por hacer"],
+["Diseñar modelo entidad-relación","Definir users, categories, movements y budgets, además de sus relaciones.","Datos","Alta","En revisión"],
+["Preparar estructura del backend FastAPI","Organizar módulos, configuración, rutas, servicios y dependencias.","Backend","Alta","En progreso"],
+["Configurar PostgreSQL y SQLAlchemy","Crear conexión, modelos y sesiones de base de datos.","Datos","Alta","En progreso"],
+["Crear migraciones con Alembic","Versionar la estructura de la base de datos y probar upgrade/downgrade.","Datos","Media","Por hacer"],
+["Implementar registro e inicio de sesión","Crear endpoints de registro/login, hash Bcrypt y emisión de JWT.","Backend","Alta","En progreso"],
+["Proteger endpoints y aislar datos por usuario","Aplicar autenticación y filtrar consultas por el usuario autenticado.","Backend","Alta","Por hacer"],
+["Implementar CRUD de categorías","Listar categorías predeterminadas y permitir categorías personalizadas.","Backend","Media","Por hacer"],
+["Implementar CRUD de movimientos","Registrar, consultar, editar y eliminar ingresos y gastos en COP.","Backend","Alta","En progreso"],
+["Implementar presupuestos y alertas","Crear límites mensuales y alertas preventivas desde el umbral configurado.","Backend","Alta","Por hacer"],
+["Programar detector de fugas","Implementar categoría dominante, gastos hormiga, variación entre periodos y ahorro anualizado.","Backend","Alta","Por hacer"],
+["Implementar estadísticas y resumen","Preparar datos agregados para gráficos de dona, líneas y barras.","Backend","Media","Por hacer"],
+["Implementar metas y aportes de ahorro","Crear metas, registrar aportes y calcular progreso y saldo restante.","Backend","Media","Por hacer"],
+["Implementar exportación CSV","Generar archivo de movimientos para el usuario autenticado.","Backend","Baja","Por hacer"],
+["Documentar y probar endpoints REST","Verificar contratos, respuestas, validaciones y documentación OpenAPI/Swagger.","Backend","Media","Por hacer"],
+["Crear proyecto móvil con Expo SDK 52","Configurar React Native, Expo Router y estructura de pantallas.","Móvil","Alta","En progreso"],
+["Configurar navegación y pestañas","Crear rutas protegidas y navegación entre módulos principales.","Móvil","Media","Por hacer"],
+["Construir pantallas de registro y login","Conectar formularios con la autenticación del backend.","Móvil","Alta","Por hacer"],
+["Construir dashboard financiero","Mostrar saldo, ingresos, gastos, presupuesto, alerta principal y últimos movimientos.","Móvil","Alta","Por hacer"],
+["Construir módulo de movimientos","Crear formularios, filtros y acciones para editar y eliminar registros.","Móvil","Alta","Por hacer"],
+["Construir módulo de detector de fugas","Mostrar hallazgos, explicación matemática y recomendación de acción.","Móvil","Alta","Por hacer"],
+["Construir presupuestos, estadísticas y metas","Conectar cada pantalla con sus endpoints y visualizar resultados.","Móvil","Media","Por hacer"],
+["Construir perfil y configuración de conexión","Mostrar datos del usuario, URL del backend y cierre de sesión.","Móvil","Media","Por hacer"],
+["Integrar Axios y manejo de errores","Configurar URL base, token Bearer, interceptores y respuestas 401.","Móvil","Alta","Por hacer"],
+["Aplicar componentes de React Native Paper","Unificar la interfaz con componentes Material Design 3.","Móvil","Media","Por hacer"],
+["Configurar Docker Compose","Levantar PostgreSQL y backend con variables de entorno y volúmenes.","DevOps","Alta","En progreso"],
+["Agregar healthcheck de PostgreSQL","Esperar a que la base de datos esté lista antes de iniciar el backend.","DevOps","Media","Por hacer"],
+["Configurar variables de entorno y secretos","Separar credenciales, URL de base de datos y SECRET_KEY del código fuente.","DevOps","Alta","Por hacer"],
+["Probar conexión móvil con backend","Verificar IP local, red Wi-Fi y acceso desde Expo Go en un dispositivo físico.","DevOps","Alta","Por hacer"],
+["Crear pruebas unitarias del backend","Probar reglas, validaciones, cálculos y servicios de forma aislada.","Pruebas","Alta","Por hacer"],
+["Crear pruebas de integración de API","Verificar registro, login, movimientos, presupuestos, metas y estadísticas.","Pruebas","Alta","Por hacer"],
+["Probar seguridad y aislamiento de usuarios","Comprobar que un usuario no pueda consultar ni modificar datos ajenos.","Pruebas","Alta","Por hacer"],
+["Validar detector de fugas con casos de prueba","Comprobar umbral de $25.000 COP, categoría dominante, variación ≥15% y proyección anual.","Pruebas","Alta","Por hacer"],
+["Ejecutar pruebas de usabilidad móvil","Revisar formularios, navegación, mensajes, accesibilidad y tamaños de pantalla.","Pruebas","Media","Por hacer"],
+["Corregir errores y hacer regresión","Resolver defectos y volver a ejecutar las pruebas afectadas.","Pruebas","Alta","Por hacer"],
+["Redactar manual técnico","Documentar arquitectura, tecnologías, datos, seguridad, API, pruebas y despliegue.","Documentación","Media","Terminado"],
+["Redactar manual de usuario","Explicar instalación con Expo Go y uso de cada módulo de la aplicación.","Documentación","Media","Terminado"],
+["Preparar README e instrucciones de instalación","Documentar requisitos, comandos, configuración y solución de problemas.","Documentación","Media","Por hacer"],
+["Preparar presentación y evidencias","Organizar capturas, diagramas, resultados de pruebas y demostración.","Documentación","Media","Por hacer"],
+["Realizar revisión final con lista de aceptación","Confirmar que cada requisito comprometido funciona y está documentado.","Entrega","Alta","Por hacer"],
+["Preparar versión de entrega y respaldo","Congelar versión, respaldar código y base de datos de prueba.","Entrega","Alta","Por hacer"],
+["Realizar demostración y entrega académica","Presentar el problema, solución, arquitectura, funcionalidades y resultados.","Entrega","Alta","Por hacer"]
+];
+let tasks=[], editingId=null;
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function load(){try{tasks=JSON.parse(localStorage.getItem("tableroFinanzasTareas"))||[]}catch(e){tasks=[]}if(!tasks.length)tasks=seed.map(x=>({id:uid(),title:x[0],desc:x[1],area:x[2],priority:x[3],status:x[4]}));persist()}
+function persist(){localStorage.setItem("tableroFinanzasTareas",JSON.stringify(tasks));}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){
+ const q=document.getElementById("search").value.toLowerCase(),p=document.getElementById("priority").value,a=document.getElementById("area").value;
+ const filtered=tasks.filter(t=>(!q||(t.title+" "+t.desc).toLowerCase().includes(q))&&(!p||t.priority===p)&&(!a||t.area===a));
+ document.getElementById("board").innerHTML=columns.map((col,ci)=>{
+  const list=filtered.filter(t=>t.status===col);
+  return `<section class="column"><div class="column-head"><div class="column-title"><span class="dot" style="background:${["#8b92a2","#2875c7","#c87516","#6759d6","#16865b"][ci]}"></span>${col}</div><span class="count">${list.length}</span></div><div class="task-list">${list.length?list.map(t=>card(t,ci)).join(""):'<div class="empty">No hay tareas en esta columna</div>'}</div><button class="add-task" onclick="openModal(null,'${col}')">＋ Añadir una tarea</button></section>`;
+ }).join("");
+ const total=tasks.length,done=tasks.filter(t=>t.status==="Terminado").length,doing=tasks.filter(t=>t.status==="En progreso").length,percent=total?Math.round(done/total*100):0;
+ document.getElementById("total").textContent=total;document.getElementById("doing").textContent=doing;document.getElementById("done").textContent=done;document.getElementById("percent").textContent=percent+"%";document.getElementById("progress").style.width=percent+"%";
+}
+function card(t,ci){return `<article class="task"><div class="task-top"><div><h3>${esc(t.title)}</h3></div><button class="mini" title="Editar" onclick="openModal('${t.id}')">✎</button></div><p>${esc(t.desc||"Sin descripción")}</p><span class="tag">${esc(t.area)}</span><span class="tag ${t.priority.toLowerCase()}">${esc(t.priority)}</span><div class="task-foot"><small>${ci+1} / ${columns.length} · ${esc(t.status)}</small><div class="task-actions">${ci>0?`<button class="mini" onclick="moveTask('${t.id}',-1)">←</button>`:""}${ci<columns.length-1?`<button class="mini" onclick="moveTask('${t.id}',1)">→</button>`:""}<button class="mini" onclick="deleteTask('${t.id}')">×</button></div></div></article>`}
+function openModal(id=null,status="Por hacer"){
+ editingId=id;const t=tasks.find(x=>x.id===id);document.getElementById("modalTitle").textContent=t?"Editar tarea":"Nueva tarea";
+ document.getElementById("taskId").value=id||"";document.getElementById("title").value=t?.title||"";document.getElementById("desc").value=t?.desc||"";
+ document.getElementById("areaInput").value=t?.area||"Gestión";document.getElementById("prioInput").value=t?.priority||"Media";document.getElementById("statusInput").value=t?.status||status;
+ document.getElementById("modal").classList.add("show");document.getElementById("title").focus();
+}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+function saveTask(e){e.preventDefault();const data={title:document.getElementById("title").value.trim(),desc:document.getElementById("desc").value.trim(),area:document.getElementById("areaInput").value,priority:document.getElementById("prioInput").value,status:document.getElementById("statusInput").value};if(!data.title)return;
+ if(editingId){Object.assign(tasks.find(t=>t.id===editingId),data)}else tasks.push({id:uid(),...data});persist();closeModal();render()}
+function moveTask(id,dir){const t=tasks.find(x=>x.id===id),i=columns.indexOf(t.status);t.status=columns[Math.max(0,Math.min(columns.length-1,i+dir))];persist();render()}
+function deleteTask(id){if(confirm("¿Eliminar esta tarea del tablero?")){tasks=tasks.filter(t=>t.id!==id);persist();render()}}
+function resetBoard(){if(confirm("Esto reemplazará tus cambios por el tablero de ejemplo. ¿Continuar?")){tasks=seed.map(x=>({id:uid(),title:x[0],desc:x[1],area:x[2],priority:x[3],status:x[4]}));persist();render()}}
+function exportBoard(){const data={project:"¿En qué se me fue?",exportedAt:new Date().toISOString(),tasks};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="tablero-en-que-se-me-fue.json";a.click();URL.revokeObjectURL(url)}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+load();render();
+</script>
+</body>
+</html>
